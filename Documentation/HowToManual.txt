@@ -1,0 +1,19 @@
+HOW TO: for users
+1. In order to use our application the user must first sign up for the survey system
+2. The user must have access to a phone or email
+
+HOW TO: for testing
+1. For testing and connection to database please make sure to have the latest version of
+TLS in your local machine.
+2. Virtual Machine connections without key file is not permitted and connot be accessed.
+3. To create or test surveys login to mySQL using the format below:
+        mysql -uCS370 -P3306 -h3.82.210.103 -p
+        password: HelloCat1
+4. Once logged in you may use general mySQL commands to register a user on the Usr_Info
+table, survey questions and more.
+5. To display your survey on the browser please follwoing the link format:
+        http://52.15.52.238:8080/SurveyRetrieve/survey?usrID=YOUR_USER_ID&surveyID=YOUR_SURVEY_ID
+6. Once you take the survey you will recieve a thank you note, after which you can check
+your submitted results from mySQL database connection described in step 3.
+
+
