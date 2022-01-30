@@ -1,0 +1,150 @@
+How to use the survey system:
+
+If you are looking to test the system at each step of the way
+and monitor the mysql database feel free to use this login information.
+
+
+mysql -u remoteuser -p -h 18.189.27.226
+
+the database is called "surveysystem"
+
+------------------User Registration------------------
+1)first a unregistered user my go to the registration page
+located at the following url below. 
+
+http://52.23.169.99/SurveySystem/index.html
+
+(The index.html file is 
+a file which prompts the user to sign up.) When signing up
+it is assumed that the user lives in the united states, so the are only 
+required to enter their phone number with the area code. When entering 
+the phone number it must only contain numbers. For example (516)-123-4567
+must be entered as 5161234567. 
+Once this information is submitted, the user's information will be inserted into the 
+database and can be found in the "Usr_Info" table. This Name, email and phone number will be stores and their status by
+default will be set to "unverified"
+
+http://52.23.169.99/SurveySystem/index.html
+
+
+
+------------------Verifying their Phone number------------------
+2)Once the user has submitted their name, email, and phone number.
+They will have been sent a one time pass code to their phone number.(Note: I do not pay
+for the twilio service and only use their free trial service. so my application is not allow to send 
+messages to phone number that are not registered to my twilio account.)
+After the one time pass code has been sent. The one time pass code will be stored in
+the "Usr_verify" table. The User must enter the code correctly to be registered.
+	
+	i)If the code is correctly entered the user will be told that they have been successfully registered and their information
+will now be stored into the "Usr_Info" table and their status will say "verified" and the one time pass code will be deleted 
+from the "Usr_Verify" table.
+
+	ii)If the code is incorrectly, then the current one time pass code stored in "Usr_verify" will be deleted. Then 
+the user will be redirected back to the same verification page and have a new one time pass code sent to their phone number.
+
+After the user is verified, a success message will be printed on their screen and they will be prompted to click the link 
+which leads to the login page.
+
+
+
+
+
+
+
+------------------User Logging in------------------
+3)If a returning user is looking to login and create a survey, they must go to the following URL:
+
+http://52.23.169.99/SurveySystem/index.html
+
+This page will prompt the user to enter a phone number that is associated with their account. 
+
+	i) If the user enters a phone number that is not registered, then they will be redirected to the registration
+page and they must complete steps 1 and 2 before doing step 3.
+
+	ii) If the user enters a phone number that is registered but not verified, then they will be told that their phone number
+is not verified. (Unfortunately I forgot to allow a unverified user to comeback and verify their
+number, so if this case happens the only way to be able to log in is to delete the user from the table "Usr_Info" and make sure there
+is no one time passcode associated with the user in "Usr_verify". Then the user must re-register.)
+
+	iii)If The user enteres a registered and verified phone number then they will be 
+sent a one time pass token(which gets stored in "Usr_verify") and redirected to verify their phone number.
+
+		iii.a)If the user enters the one time pass code incorrectly, they will be told that it was incorrect
+and will be prompted to return back to the login page and try again.
+		
+		iii.b) If the user enteres the one time pass code correctly, they will be redirected to the survey creation 
+page.
+
+
+
+
+------------------Survey Creation------------------
+4) In the survey creation page, the user is forced to enter a survey title, and survey description otherwise they cannot
+create the survey. (a flaw in my design is that if they enter a title and description but no questions the system
+will allow the survey to be created and the survey will be stored in the "Survey" table.)
+	
+	Adding a question to the question list:
+	i)The user must enter a question description and select a question type in order to create a question.
+		i.a)If the user attempts to add a question without filling in a question description
+then an alert will appear telling the user to enter a question description. 
+
+		i.b)If the user attempts to add a question with a question description but no question type, then a flaw in my javascript code
+occurs. The question will be added perfectly fine into the list but the question will have a type of 0 which will cause an error
+in storing and retrieving the survey.
+
+		
+	ii)After a question description and question type is selected, the user must click "create question". Then the question 
+they just created will appear below the label that says "Questions:". Each question will have a "delete" button, which allows for deleting
+the question. Also each question will be inside of a textbox, incase if the user would like to make some changes to the question.
+
+		ii.a)If the question is a Multiple Choice or Multiple Answer question, then there will be an additional textbox and button appear under the question
+which will allow the user to add choices to the question.(A flaw with this is that my code allows a user to submit a survey that contains a question(s) that have
+no choices. For every choice added, the user is able to adjust the choice description if need be or if they would like to delete it, there is a "delete" button 
+associated with each choice added.
+
+
+		iii)For every question added there is a text box that displays the total number of questions in the question list.
+
+(An important thing to note is that none of the text boxes have a character limit!)
+
+Once the user has finished filling in all of the required information and has added all the questions for their survey, 
+they are now ready to click the submit button. Once the submit button is clicked, the survey will be stored in the database.
+The tables involved in this process are: "Survey", "Question", and "QuestionChoices".
+
+
+Flaw:
+
+	A major flaw with creating multiple surveys is that the database only allows for one survey to be stored. When I attempt to create another survey it only stores the survey title, description, survey id, and
+user id; but 
+it does not store the questions. The reason this occurs is either because of how my code generates a question id (My approach was for each question created the question Id is the question number)
+Meaning that since a previous survey already used question id= 1, 2, ..., n. The question id's in the next survey that also have those question id's that were used by another
+survey will fail to be stored.
+
+
+------------------Viewing/Taking The Survey------------------
+5)Once the survey is submitted by the user who created it, they will be redirected to a page that will display the survey. The survey create can take the the survey and their results will be stored into 
+the "QResponce" table. However there are many bugs/flaws when the survey is displayed to the user and when the they survey responses are submitted.
+
+	Flaws:
+	i) When the survey page is being displayed, it is only capable of properly displaying the multiple choice and multiple answer questions properly. When the survey retrieval code encounters a reponse type
+question it does not provide a textbox for user input, it only prints out the question. However this flaw is not because of the survey retrival code, the reason this flaw happens is because of the Json object created by 
+the "SurveyExtIns.jar" file. The Json object created by this file adds question-type key values to both Multiple Choice and Multiple Answer but does not add a question-type key to a question
+that is a response type question. Therefor causing Meri's survey retrival code to skip the step of adding a textbox area to take in a response by the user.
+
+	ii)The survey system in my case is only capable of storing responses from multiple choice questions only (or multiple answers, so long as only 1 choice is selected for each multiple answer question).
+A repsonse from a text response question cannot be stored because the user isnt able to fill in any text box due to the problem with the Json object created in "SurveyExtIns.jar". Then the problem
+with selecting multiple choices Im not really sure why that is happening but I suspect that either I made a mistake when I created the "QResponces" table or there is
+a flaw with the database schema particularly the relationship between the "QResponce" table and the "QuestionChoices" table.
+	
+	iii)Another flaw is that the only responses that can be stored is by the survey creator themselves, the survey system does not store responses from anyone else.
+
+
+
+
+
+
+
+
+
+
