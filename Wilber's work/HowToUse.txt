@@ -5,6 +5,7 @@ and monitor the mysql database feel free to use this login information.
 
 
 mysql -u remoteuser -p -h 18.189.27.226
+the password is mypass
 
 the database is called "surveysystem"
 
