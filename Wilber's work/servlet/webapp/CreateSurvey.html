@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Survey</title>
+
+    <style>
+      /* Styling the Body element i.e. Color,
+		Font, Alignment */
+      body {
+        background-color: white;
+        font-family: Verdana;
+        text-align: center;
+      }
+
+      .float-container {
+        padding: 20px 20px;
+      }
+
+      .float-child {
+        width: 35%;
+        float: left;
+        padding: 20px;
+        border: 2px solid black;
+      }
+
+      /* Styling the Form (Color, Padding, Shadow) 
+      form {
+        background-color: darkgrey;
+        max-width: 1000px;
+        margin: 50px auto;
+        padding: 30px 20px;
+        box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.5);
+      }
+*/
+      .QuestionChoices {
+        background-color: darkgrey;
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px 20px;
+        box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.5);
+      }
+
+      .open-button {
+        background-color: #555;
+        color: white;
+        padding: 16px 20px;
+        border: none;
+        cursor: pointer;
+        opacity: 0.8;
+        position: fixed;
+        bottom: 23px;
+        right: 28px;
+        width: 280px;
+      }
+
+      /* Styling form-control Class */
+      .form-control {
+        text-align: left;
+        margin-bottom: 25px;
+      }
+
+      /* Styling form-control Label */
+      .form-control label {
+        display: block;
+        margin-bottom: 1px;
+      }
+
+      /* Styling form-control input,
+		select, textarea */
+      .form-control input,
+      .form-control select,
+      .form-control textarea {
+        border: 1px solid #777;
+        border-radius: 1px;
+        font-family: inherit;
+        padding: 5px;
+        display: block;
+        width: 60%;
+      }
+
+      /* Styling form-control Radio
+		button and Checkbox */
+      .choices .form-control input[type="radio"],
+      .form-control input[type="checkbox"] {
+        display: inline-block;
+        width: auto;
+      }
+
+      .required:after {
+        content: "*";
+        color: red;
+      }
+
+      .alignList {
+        display: inline-block;
+      }
+
+      .listLabel {
+        text-align: center;
+        display: inline-block;
+      }
+
+      textarea {
+        resize: none;
+      }
+
+      /* Styling Button */
+    </style>
+    <script>
+
+        //clears the question box
+        function clearQuestionBox(){
+            let qBox = document.getElementById("questionBoxId");
+            qBox.value = "";
+        }
+        //resets the question type selection
+        function resetQType(){
+            let qTypeSelection = document.getElementById("questionTypeId");
+            qTypeSelection.value = "0";
+        }
+
+        //checks question description to make sure its not empty
+        //returns true if the user has entered a question, and returns false 
+        //if no question has been entered
+        function checkQuestionDesc(){
+            let questionDesc = document.getElementById("questionBoxId");
+            if(questionDesc.value == ""){
+                alert("Inorder to create a question you must first enter a question!");
+                return false;
+            }
+            return true;
+        }
+
+        function incrementQCount(){
+            let numQues = document.getElementById("numQuestionsId");
+            console.log(`testing:: ${parseInt(numQues.value)}`);
+            numQues.value = parseInt(numQues.value) + 1;
+        }
+
+        function decrementQCount(){
+            let numQues = document.getElementById("numQuestionsId");
+            console.log(`testing:: ${parseInt(numQues.value)}`);
+            numQues.value = parseInt(numQues.value) - 1;
+        }
+
+        //consider making a single count function
+        function countQuestions() {
+            let numQues = document.getElementById("numQuestionsId");
+            /*
+            let i = 0,
+            itemCount = 0;
+  
+            //while (ol.getElementsByTagName("input")[i++]) itemCount++;
+            console.log(`Count is ${itemCount}`);
+            return itemCount;
+            */
+           return parseInt(numQues.value);
+        }
+
+        
+        //consider deleting
+        function getNumChoices(){
+            let numChoices = document.getElementById("numChoicesId");
+            return parseInt(numChoices.value);
+        }
+
+        //consider deleting
+        function incrementNumChoices(){
+            let numChoices = document.getElementById("numChoicesId");
+            numChoices.value = parseInt(numChoices.value) + 1;
+        }
+
+        //consider deleting
+        function decrementNumChoices(){
+            let numChoices = document.getElementById("numChoicesId");
+            numChoices.value = parseInt(numChoices.value) - 1;
+        }
+
+        //deletes question
+        function Delete(currentEl){
+            currentEl.parentNode.parentNode.removeChild(currentEl.parentNode);
+            decrementQCount();
+        }
+
+        //deletes a choice
+        function DeleteChoice(currentEl){
+            currentEl.parentNode.parentNode.removeChild(currentEl.parentNode);
+            decrementNumChoices();
+        }
+
+
+        function countAllChoices(){
+            let numQ = document.getElementById("numQuestionsId").value;
+            console.log(`Number of questions is ${numQ}`);
+            let totalNumChoices = 0;
+            for(let i = 1; i <= numQ; i++){
+                let qChoiceListI = document.getElementById(`q-${i}-choices`);
+                if(qChoiceListI != null){
+                    let choiceCounterCurrent = 0;
+                    let j = 0;
+                    console.log(qChoiceListI);
+                    while(qChoiceListI.getElementsByTagName("li")[j++]){
+                        choiceCounterCurrent++;
+                        totalNumChoices++;
+                    }
+                    console.log(`Question ${i} has ${choiceCounterCurrent} choices`);
+                }
+            }
+            console.log(`Total number of choices ${totalNumChoices}`);
+        }
+
+        //creates question and puts into the list of questions
+        function addQuestion(){
+            let questionList = document.getElementById("questionListId");
+            if(checkQuestionDesc()){
+                let questionDesc = document.getElementById("questionBoxId");
+                let questionList = document.getElementById("questionListId");
+                let qType = document.getElementById("questionTypeId");
+                console.log(`qType: ${qType.value}`);
+                let qCount = countQuestions();
+                if(qType.value == 1 || qType.value == 2){// mcorma
+                    questionList.innerHTML +=
+                    `
+                    <li> 
+                        <label>Question:</label>
+                        <input name="q-${qCount+1}-${qType.value}" id="q-${qCount+1}-Id" value="${questionDesc.value}"> 
+                            <button onClick="Delete(this);">Delete</button>
+                        </input>
+                        <label>Enter Choices for question ${qCount + 1}</label>
+                        <input id="q-${qCount+1}choiceBox"></input>
+                        <button type="button" onClick="addChoice(${qCount+1});">add Choice</button> 
+                        <br></br>
+                        <ul id="q-${qCount+1}-choices"></ul>
+                    </li>
+                    `;
+                 }
+                else{//shortreponse
+                    questionList.innerHTML +=
+                    `<li>
+                        <label>Question:</label> 
+                        <input name="q-${qCount+1}-${qType.value}" value="${questionDesc.value}"> 
+                        <button onClick="Delete(this);">Delete</button> </input>
+                    </li>
+                    `;
+                }
+                clearQuestionBox();
+                //if response, do nothing.
+                resetQType();
+                incrementQCount();
+            }
+        }
+
+
+        function addChoice(questionNum){
+            let qChoiceListId = document.getElementById(`q-${questionNum}-choices`); 
+            let choiceDesc = document.getElementById(`q-${questionNum}choiceBox`);
+            if(choiceDesc.value ==""){
+                alert("You must enter a choice in the textbox!");
+            }
+            else{
+                incrementNumChoices();
+                let numChoices = getNumChoices();
+                qChoiceListId.innerHTML += 
+                `
+                <li>
+                    <input name="${questionNum}-${numChoices}" value="${choiceDesc.value}"></input>
+                    <button onClick="DeleteChoice(this);">Delete Choice</button>
+                </li>
+                `
+                choiceDesc.value ="";
+            }
+        }
+    </script>
+  </head>
+  <body>
+    <!-- Create Form -->
+    <!--  enctype="multipart/form-data"  action="CreateSurvey" -->
+    <form id="createSurvey" action="CreateSurvey" method="POST">
+<div class="float-container">
+
+
+    <div class="float-child">
+      <div style="text-align: center;">
+        <h1>Survey Info</h1>
+        <label>Enter Survey Title:</label>
+        <input name="surveyTitleName" type="text" id="surveyTitleId" placeholder="Survey title" required/>
+      </div>
+      <br></br>
+
+
+
+      <div class="form-control" style="text-align: left;">
+        <label>Enter Survey Description:</label>
+        <br></br>
+        <textarea rows ="5" name="surveyDescName" type="text" id="surveyDescId" placeholder="Survey Description" required></textarea>
+      </div>
+      
+      <div class="form-control" style="text-align: left;">
+        <label>Total Number of Questions Created:</label>
+        <input value="0" id="numQuestionsId" name="numQuestionsName" readonly>
+        <br></br>
+      </div>
+      
+       <div class="form-control" style="display: none;">
+        <label>Total Number of Choices Created:</label>
+        <input value="0" id="numChoicesId" name="numChoicesName" readonly>
+        <br></br>
+      </div>
+
+      <br></br>
+      <div style="text-align: left;">
+        <input type="submit" value="submit"></input>
+      </div>
+    
+    </div>
+
+    <div class="float-child">
+        <div style="text-align: left;">
+          <h1>Survey Questions</h1>
+          <label>Question:</label>
+          <input name="questionBox" type="text" id="questionBoxId" placeholder="Enter a Question"></input>
+          <br></br>
+          <label>Question Type</label>
+          <select id="questionTypeId" name="questionTypeName">
+            <option value="0">----------</option>
+            <option value="1">Multiple Choice</option>
+            <option value="2">Multiple Answer</option>
+            <option value="3">Response</option>
+          </select>
+          <br></br>
+        <label>Click to Create</label>
+          <button type="button" onclick="addQuestion()">Create Question</button>
+
+        </div>
+        <br></br>
+  
+  
+  
+        <div class="form-control" style="text-align: center;">
+          <label>Questions:</label>
+          <br></br>
+        </div>
+        
+        <div class="form-control" style="text-align: left;">
+            <ol name="questionListName" id="questionListId"></ol>
+        </div>
+
+  
+        <br></br>
+      
+      </div>
+
+
+    </div>
+    </form>
+  </body>
+</html>
